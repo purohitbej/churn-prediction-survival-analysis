@@ -236,9 +236,3 @@ pytest tests/ -v
 **Why the `Tenure_Cashback` interaction?** KDE analysis showed clear distribution separation between churners and non-churners — something neither raw Tenure nor CashbackAmount achieved alone. The product encodes the compound effect of loyalty × spend incentive.
 
 **Why survival analysis in addition to classification?** Classification tells you *who*. Survival analysis tells you *when* and at *what rate*. Both are needed for a complete retention strategy — particularly for lifetime value calculations and budget allocation.
-
----
-
-## 📄 License
-
-MIT
