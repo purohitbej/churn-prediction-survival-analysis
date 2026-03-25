@@ -20,10 +20,11 @@ env/
 *.ipynb_checkpoints
 
 # Model artefacts
-models/*.joblib
-models/*.pkl
-models/threshold.txt
-models/feature_names.txt
+# models/*.joblib
+# models/*.pkl
+# models/threshold.txt
+# models/feature_names.txt
+#  <========== Committing models for simplicity in github actions
 
 # Data
 data/

@@ -1,0 +1,17 @@
+PreferredLoginDevice
+CityTier
+WarehouseToHome
+PreferredPaymentMode
+Gender
+HourSpendOnApp
+NumberOfDeviceRegistered
+PreferedOrderCat
+SatisfactionScore
+MaritalStatus
+NumberOfAddress
+Complain
+OrderAmountHikeFromlastYear
+CouponUsed
+OrderCount
+DaySinceLastOrder
+Tenure_Cashback
