@@ -27,3 +27,6 @@ openpyxl==3.1.5
 
 # Testing
 pytest==7.4.0
+
+# Exception
+Werkzeug==3.1.6

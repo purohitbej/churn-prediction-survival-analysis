@@ -23,6 +23,7 @@ import traceback
 
 import numpy as np
 from flask import Flask, request, jsonify
+from werkzeug.exceptions import BadRequest
 
 from api.utils import (
     load_pipeline,
@@ -98,6 +99,8 @@ def create_app() -> Flask:
                 200,
             )
 
+        except BadRequest:
+            return jsonify({"error": "Request body must be valid JSON."}), 400
         except FileNotFoundError as e:
             return jsonify({"error": str(e)}), 503
         except KeyError as e:
@@ -166,6 +169,8 @@ def create_app() -> Flask:
                 200,
             )
 
+        except BadRequest:
+            return jsonify({"error": "Request body must be valid JSON."}), 400
         except FileNotFoundError as e:
             return jsonify({"error": str(e)}), 503
         except Exception:
