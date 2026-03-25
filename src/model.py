@@ -13,6 +13,8 @@ import seaborn as sns
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier
+from lightgbm import LGBMClassifier
+from xgboost import XGBClassifier
 from sklearn.metrics import (
     confusion_matrix,
     accuracy_score,
@@ -22,9 +24,9 @@ from sklearn.metrics import (
 )
 
 
-# Best hyperparameters found via GridSearchCV (forest.ipynb — final grid)
-# =======================================================================
-BEST_PARAMS = dict(
+# Best hyperparameters for Random Forest found via GridSearchCV
+# =============================================================
+BEST_PARAMS_RFC = dict(
     bootstrap=True,
     ccp_alpha=0.0,
     class_weight={0: 1, 1: 3.4},
@@ -46,11 +48,41 @@ BEST_PARAMS = dict(
 )
 
 
+# Best hyperparameters for LGBM found via optuna
+# ==============================================
+BEST_PARAMS_LGBM = dict(
+    n_estimators=500,
+    learning_rate=0.005,
+    num_leaves=10,
+    max_depth=4,
+    class_weight={0: 1, 1: 2.9},
+    random_state=42,
+    n_jobs=-1,
+    verbose=-1,
+)
+
+
+# Best hyperparameters for XGB found via optuna
+# =============================================
+BEST_PARAMS_XGB = dict(
+    n_estimators=500,
+    learning_rate=0.01,
+    max_depth=3,
+    subsample=0.9,
+    colsample_bytree=0.3,
+    gamma=0.1,
+    scale_pos_weight=4.938,
+    objective="binary:logistic",
+    n_jobs=-1,
+    eval_metric="auc",
+)
+
+
 # Pipeline factory
 # ================
 
 
-def build_pipeline(rf_params: dict | None = None) -> Pipeline:
+def build_pipeline_rfc(rf_params: dict | None = None) -> Pipeline:
     """
     Wraps a RandomForestClassifier inside a median-imputer Pipeline.
 
@@ -63,11 +95,55 @@ def build_pipeline(rf_params: dict | None = None) -> Pipeline:
     -------
     sklearn Pipeline  (imputer → RandomForestClassifier)
     """
-    params = rf_params if rf_params is not None else BEST_PARAMS
+    params = rf_params if rf_params is not None else BEST_PARAMS_RFC
     return Pipeline(
         [
             ("imputer", SimpleImputer(strategy="median")),
             ("model", RandomForestClassifier(**params)),
+        ]
+    )
+
+
+def build_pipeline_lgbm(lgbm_params: dict | None = None) -> Pipeline:
+    """
+    Wraps a LightGBMClassifier inside a median-imputer Pipeline.
+
+    Parameters
+    ----------
+    lgbm_params : dict of LightGBM hyperparameters.
+                Defaults to the tuned BEST_PARAMS if None.
+
+    Returns
+    -------
+    sklearn Pipeline  (imputer → LightGBMClassifier)
+    """
+    params = lgbm_params if lgbm_params is not None else BEST_PARAMS_LGBM
+    return Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median")),
+            ("model", LGBMClassifier(**params)),
+        ]
+    )
+
+
+def build_pipeline_xgb(xgb_params: dict | None = None) -> Pipeline:
+    """
+    Wraps a XGBoostClassifier inside a median-imputer Pipeline.
+
+    Parameters
+    ----------
+    xgb_params : dict of RFC hyperparameters.
+                Defaults to the tuned BEST_PARAMS if None.
+
+    Returns
+    -------
+    sklearn Pipeline  (imputer → XGBoostClassifier)
+    """
+    params = xgb_params if xgb_params is not None else BEST_PARAMS_XGB
+    return Pipeline(
+        [
+            ("imputer", SimpleImputer(strategy="median")),
+            ("model", XGBClassifier(**params)),
         ]
     )
 

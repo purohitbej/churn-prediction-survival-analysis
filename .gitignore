@@ -43,3 +43,22 @@ Thumbs.db
 .pytest_cache/
 htmlcov/
 .coverage
+
+# MLflow tracks
+mlruns/
+
+# MLflow database
+mlflow.db
+*.db
+
+# Optuna study database
+optuna_study.db
+*.db
+
+# Logs
+*.log
+logs/
+
+# Secrets
+.env.*
+!.env.example

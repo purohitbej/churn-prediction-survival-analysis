@@ -11,7 +11,7 @@ POST /predict/batch            — predict churn for multiple customers
 
 Running locally
 ---------------
-    python api/app.py
+    python -m api.app
 
 Running with gunicorn (production)
 -----------------------------------
