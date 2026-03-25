@@ -1,0 +1,58 @@
+# ==============
+# .dockerignore
+# ==============
+
+# Git
+.git/
+.gitignore
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# Virtual environments
+.env
+.venv/
+venv/
+env/
+
+# Jupyter notebooks
+notebooks/
+*.ipynb
+.ipynb_checkpoints/
+
+# Raw data
+data/
+*.xlsx
+*.csv
+
+# MLflow tracking
+mlruns/
+mlflow.db
+*.db
+
+# Tests
+tests/
+
+# Docs
+docs/
+
+# Training scripts
+scripts/
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# CI/CD config
+.github/
+
+# pytest artifacts
+.pytest_cache/
+.coverage
+htmlcov/

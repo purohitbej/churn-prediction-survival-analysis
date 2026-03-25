@@ -62,3 +62,7 @@ logs/
 # Secrets
 .env.*
 !.env.example
+
+# OS (Linux addition — you're likely on Linux/WSL)
+*~
+.nfs*

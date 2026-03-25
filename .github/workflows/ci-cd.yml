@@ -1,0 +1,102 @@
+# ====================================================================
+# CI/CD Pipeline — Churn Prediction API
+# ====================================================================
+# Triggers:
+#   - Every push to any branch          → runs tests
+#   - Every pull request to master      → runs tests
+#   - Every push to master (tests pass) → builds & pushes Docker image
+# ====================================================================
+
+name: CI/CD
+
+on:
+    push:
+        branches: ["**"]
+    pull_request:
+        branches: [master]
+
+jobs:
+    # ----------------------------------------------------------------
+    # JOB 1: Test
+    # Run pytest on every push and pull request
+    # ----------------------------------------------------------------
+    test:
+        name: Run Tests
+        runs-on: ubuntu-latest
+
+        steps:
+            # Step 1: Check out the repository code onto the runner
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Step 2: Install Python 3.12 — matches Docker image
+            - name: Set up Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            # Step 3: Cache pip packages
+            # If requirements.txt hasn't changed, GitHub reuses the cached packages instead of downloading again
+            - name: Cache pip packages
+              uses: actions/cache@v4
+              with:
+                  path: ~/.cache/pip
+                  key: pip-${{ hashFiles('requirements.txt') }}
+                  restore-keys: pip-
+
+            # Step 4: Install all dependencies from requirements.txt
+            - name: Install dependencies
+              run: pip install -r requirements.txt
+
+            # Step 5: Run pytest.
+            # -v            → verbose output (shows each test name)
+            # --tb=short    → short traceback on failure (easier to read in CI)
+            # tests/        → only run files inside the tests/ folder
+            - name: Run pytest
+              run: pytest tests/ -v --tb=short
+
+    # ----------------------------------------------------------------
+    # JOB 2: Build & Push Docker Image
+    # Only runs after the test job passes, and only on master
+    # ----------------------------------------------------------------
+    docker:
+        name: Build & Push Docker Image
+        runs-on: ubuntu-latest
+        needs: test # waits for test job to pass
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+
+        steps:
+            # Step 1: Check out the repository code
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Step 2: Log in to Docker Hub using credentials stored in GitHub Secrets
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+            # Step 3: Set up Docker Buildx — an extended Docker builder
+            # that supports caching, multi-platform builds, and is
+            # required for the cache-to/cache-from features below
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            # Step 4: Build the image and push to Docker Hub
+            # tags        → image will be available as:
+            #               -username/churn-api:latest
+            #               -username/churn-api:abc1234  (git commit SHA)
+            # cache-from  → reuse layers from the previous build if unchanged
+            # cache-to    → save new layers to cache for next time
+            # push: true  → actually push to Docker Hub
+            - name: Build and push Docker image
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  push: true
+                  tags: |
+                      ${{ secrets.DOCKERHUB_USERNAME }}/churn-api:latest
+                      ${{ secrets.DOCKERHUB_USERNAME }}/churn-api:${{ github.sha }}
+                  cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/churn-api:buildcache
+                  cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/churn-api:buildcache,mode=max
